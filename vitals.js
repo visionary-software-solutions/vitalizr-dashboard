@@ -1,5 +1,10 @@
-var weights = document.getElementById('weights');
-var myChart = new Chart(weights, {
+
+function populateVital(model) {
+    var template = document.querySelector("#vital-template");
+    var clone = template.content.cloneNode(true);
+    var result = Mustache.render(template.innerHTML, model);
+    document.getElementById(model.id +'s').outerHTML = result;
+    var myChart = new Chart(document.getElementById(model.id), {
     type: 'line',
     data: {
         // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -61,3 +66,12 @@ var myChart = new Chart(weights, {
         }
     }
 });
+}
+
+[ { vital : 'Weight', id : 'weight'}, 
+  { vital: 'Pulse', id : 'pulse' }, 
+  { vital: 'Body Fat %', id : 'fat' },
+  { vital: 'BMI', id : 'bmi' },
+  { vital: 'SpO2', id: 'oxygen' },
+  { vital: 'Body Water %', id : 'water' },
+  { vital: 'Body Temperature', id : 'temp' } ].forEach(element => populateVital(element));
