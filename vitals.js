@@ -3,39 +3,18 @@ function populateVital(model) {
     var template = document.querySelector("#vital-template");
     var clone = template.content.cloneNode(true);
     var result = Mustache.render(template.innerHTML, model);
-    document.getElementById(model.id +'s').outerHTML = result;
+    document.getElementById(model.id +"s").outerHTML = result;
     var myChart = new Chart(document.getElementById(model.id), {
-    type: 'line',
+    type: "line",
     data: {
-        // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
-            label: 'Body Weight',
-            data: [
-            {t: moment().subtract(7, 'days'), y: 12},
-            {t: moment().subtract(6, 'days'), y: 19},
-            {t: moment().subtract(5, 'days'), y: 31},
-            {t: moment().subtract(4, 'days'), y: 22},
-            {t: moment().subtract(3, 'days'), y: 17},
-            {t: moment().subtract(2, 'days'), y: 28},
-            {t: moment().subtract(1, 'days'), y: 70}],
-            backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)',
-            'rgba(128, 32, 76, 0.7)',
-            ],
-            borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-            'rgba(31, 247, 115, 0.5)',
-            ],
+            label: model.vital,
+            data: model.data.map((datum) =>  {
+                var obj = new Object();
+                obj.t = moment.unix(datum.time);
+                obj.y = datum.quantity;
+                return obj;
+            }),
             borderWidth: 1,
             fill: false
         }]
@@ -43,16 +22,16 @@ function populateVital(model) {
     options: {
         scales: {
             xAxes: [{
-                type: 'time',
+                type: "time",
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Date'
+                    labelString: "Date"
                 },
                 ticks: {
                     major: {
-                        fontStyle: 'bold',
-                        fontColor: '#FF0000'
+                        fontStyle: "bold",
+                        fontColor: "#FF0000"
                     }
                 }
             }],
@@ -60,7 +39,7 @@ function populateVital(model) {
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'value'
+                    labelString: "value"
                 }
             }]
         }
@@ -68,10 +47,24 @@ function populateVital(model) {
 });
 }
 
-[ { vital : 'Weight', id : 'weight'}, 
-  { vital: 'Pulse', id : 'pulse' }, 
-  { vital: 'Body Fat %', id : 'fat' },
-  { vital: 'BMI', id : 'bmi' },
-  { vital: 'SpO2', id: 'oxygen' },
-  { vital: 'Body Water %', id : 'water' },
-  { vital: 'Body Temperature', id : 'temp' } ].forEach(element => populateVital(element));
+function fetchFrom(url, element) {
+    fetch(url).then((response) => {
+     return response.json();
+  })
+  .then((myJson) => {
+    element.data = myJson; 
+    populateVital(element);
+  });
+}
+
+const user = "7ab35698-21f9-463e-8e74-bd3d56109336";
+const endpoint = "http://vitalizr.visionarysoftware.solutions/vital/:poop:/" + user;
+[ { vital : "Weight", id : "weight" },
+  { vital: "Pulse", id : "bpm" },
+  { vital: "Body Fat %", id : "fat" },
+  { vital: "BMI", id : "bmi" },
+  { vital: "SpO2", id: "o2" },
+  { vital: "Body Water %", id : "water" },
+  { vital: "Body Temperature", id : "temp" },
+  { vital: "Blood Sugar", id : "sugar" },
+  { vital: "Blood Pressure", id : "bp" } ].forEach(element => { fetchFrom(endpoint.replace(":poop:", element.id), element); });
